@@ -1,0 +1,599 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+
+html,
+body {
+  height: 100dvh;
+}
+
+* {
+  margin: 0;
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+p {
+  margin: 0;
+}
+
+#generalLayout {
+  height: 100%;
+  display: flex;
+  overflow: hidden;
+}
+
+#lateralConversas {
+  overflow-y: scroll;
+  width: 22%;
+}
+
+.conversaFechada {
+  padding: 15px 10px;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.profilePic {
+  width: 50px;
+  height: 50px;
+  border-radius: 50px;
+  margin: 0 5px;
+}
+
+#viewMessages {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  
+  width: 100%;
+  overflow-y: scroll;
+  background: url('./logoOcioso.png') no-repeat center center;
+  background-size: 20%;
+  background-color: #161B22;
+  color: white;
+}
+
+#messages {
+  overflow-y: scroll;
+  padding-bottom: 80px;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}
+
+header {
+  display: none;
+  align-items: center;
+  gap: 5px;
+  padding: 13px;
+  box-shadow: 0.5px 0.5px 0 0 black;
+}
+
+.logoOcioso {
+  position: absolute;
+  width: 20%;
+
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  filter: opacity(50%);
+}
+
+.mensagemUsuario-texto {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+
+}
+
+.contentMensagem {
+  background-color: #002734;
+  padding: 13px;
+  padding-bottom: 1px;
+  border-radius: 5px;
+  margin: 5px;
+}
+
+.mensagemCliente-texto {
+  background-color: #0a2d47;
+  padding: 13px;
+  padding-bottom: 5px;
+  border-radius: 5px;
+  margin: 5px;
+  width: fit-content;
+}
+
+audio::-webkit-media-controls-panel {
+  background-color: transparent;
+}
+
+audio {
+  background-color: transparent;
+  margin-top: 15px!important;
+}
+
+.mensagemCliente-audio {
+  display: flex;
+  background-color: #0a2d47;
+  padding: 13px;
+  border-radius: 5px;
+  margin: 5px;
+  width: fit-content;
+}
+
+.mensagemCliente-texto p,
+.mensagemUsuario-texto p {
+  margin: 0;
+}
+
+.enviadoAs {
+  font-size: 10px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#sendMessageForm {
+  display: none;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 1px 1px 2px 1px black;
+  padding: 10px;
+  background-color: #002734;
+
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
+
+#saveMessageForm {
+  display: none;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.notificationIcon {
+  margin-left: auto;
+  padding: 7px;
+  border: 1px solid rgb(20, 211, 20);
+  border-radius: 50%;
+  background-color: rgb(20, 211, 20);
+  color: white;
+  font-size: 1em;
+}
+
+.bi-trash3-fill,
+.bi-pause-circle-fill {
+  font-size: 1.5em;
+}
+.bi-three-dots-vertical {
+  margin-left: auto;
+}
+
+#inputText {
+  width: 100%;
+  line-height: normal;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid #807d7d;
+}
+
+#sendButton,
+#startRecording {
+  background-color: transparent;
+  border: 0;
+}
+
+.bi-mic-fill,
+.bi-file-earmark-plus,
+.bi-send {
+  font-size: 1.5em;
+  color: white;
+}
+
+input[type="file"] {
+  display: none;
+}
+
+.bi-plus {
+  font-size: 2em;
+  font-weight: bold !important;
+}
+
+.more-options-menu {
+  display: none;
+  flex-direction: column;
+  padding: 18px;
+  border: 1px solid #d1d1d1;
+  background-color: white;
+  border-radius: 10PX;
+  width: 150px;
+
+  position: absolute;
+  transform: translate(20%, -50%);
+  color: black;
+}
+
+#optionsProfile {
+  display: none;
+  flex-direction: column;
+  padding: 5px 18px;
+  border: 1px solid #d1d1d19f;
+  background-color: #161b22;
+  border-radius: 5px;
+  width: fit-content;
+  z-index: 999;
+  transform: translate(320px, 70%);
+  margin-left: auto;
+  position: absolute;
+}
+#optionsProfile a {
+  text-decoration: none;
+  color: white;
+}
+
+hr {
+  margin: 5px;
+}
+
+#closeConversation {
+  margin: 0 20px 0 auto;
+  font-size: 1.5em;
+}
+
+
+#sendMessage textarea {
+  width: 100%;
+  border: 1px solid #877523;
+  border-radius: 30px;
+  padding: 3px 10px;
+}
+
+.chatImages {
+  max-height: 300px;
+  background-color: white;
+}
+
+.file {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border-radius: 5px;
+  padding: 5px;
+  margin-bottom: 3px;
+}
+
+.file p {
+  margin-right: 50px;
+}
+
+.file i {
+  font-size: 1.8em;
+  color: #363739
+}
+
+.file i:hover {
+  font-size: 1.8em;
+  color: #5778ba;
+}
+
+.messageFile {
+  font-size: 0.8em;
+}
+
+.fileType {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.6em;
+}
+
+.fileType {
+  margin: 0 !important;
+}
+
+.conversaFechada div span {
+  width: 15ch;
+  overflow: hidden;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+figure {
+  margin: 0;
+}
+
+
+.bi-check2-all {
+  font-size: 1.5em;
+}
+
+
+.custom-file-input {
+  display: inline-block;
+  cursor: pointer;
+}
+
+#sendAttachmentButton {
+  border-radius: 10px;
+  border: 1px solid rgb(102, 96, 96);
+  margin-top: 15px;
+}
+
+.main-login {
+  font-family: 'Quicksand';
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100cqb;
+  background-color: #F6F0F0 !important;
+}
+
+.form-login,
+.form-register {
+  font-weight: 700;
+  font-size: 1.1em;
+  text-align: center;
+}
+
+.copyright-login,
+.copyright-reset {
+  font-size: 1rem;
+  margin: 15px 0;
+  width: 100%;
+}
+
+.input-login,
+.input-register,
+.input-reset {
+  border: 1px solid #25242498;
+  border-radius: 24px;
+
+  margin-top: 15px;
+  padding: 5px 15px;
+  width: 228px;
+}
+
+#input-senha,
+.input-senha {
+  border: 0;
+  background-color: transparent;
+  margin-top: 0 !important;
+}
+
+.div-senha {
+  background-color: white;
+  width: fit-content;
+  border: 1px solid #25242498;
+  border-radius: 24px;
+  height: 40px;
+  width: 228px;
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.submit-login,
+.submit-register,
+.submit-resetar-senha {
+  background-color: #E7CD56;
+  border: 0.5px solid transparent;
+  border-radius: 25px;
+  color: rgb(29, 27, 27);
+  font-weight: bold;
+  text-decoration: none;
+
+  margin-top: 1rem;
+  padding: 7px 30px;
+}
+
+.submit-login:hover {
+  color: #333;
+  background-color: #ffffff;
+  border-color: #333;
+}
+
+.btnEsqueciSenha,
+.btnVoltarReset {
+  margin-top: 5px;
+  border: 0;
+}
+
+button a {
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.submit {
+  margin-bottom: 10px;
+}
+
+.logo {
+  width: 15%;
+  min-width: 150px;
+  margin: 25px 25px;
+}
+
+.label-login,
+.label-reset {
+  text-align: left;
+  width: 145px;
+  margin-top: 15px;
+}
+
+.label-login {
+  width: 78px !important;
+}
+
+.copyright {
+  font-size: 1rem;
+  margin-top: 50px;
+  width: 100%;
+}
+
+.label-reset {
+  width: 157px !important;
+  text-align: center;
+}
+
+.campo-senha {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bi-eye-fill {
+  font-size: 1.5em;
+  padding: 5px;
+  position: absolute;
+  right: 0;
+}
+
+.senha-requisitos {
+  color: #666666;
+  font-size: 10px;
+  margin-top: 1rem;
+}
+
+.senha-requisitos-wrapper {
+  width: 50%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+
+/* Lista de usuários lateral */
+
+.leftContainer {
+  width: 36.25rem;
+  border-right: 1px solid rgb(34 34 34);
+  background-color: #161B22;
+  color: white;
+  transition: width 0.3s;
+}
+.bi-unindent{
+  font-size: 1.8em;
+  margin-right: auto;
+}
+.bi-indent {
+  display: none;
+  font-size: 1.8em;
+  z-index: 999;
+  color: white;
+  background-color: #161B22;
+}
+.leftList {
+  height: 95%;
+  overflow-y: scroll;
+}
+
+.contactListHeader {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+}
+
+.contactListHeader p {
+  margin: 0;
+
+}
+
+.leftList-item {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  gap: 10px;
+}
+
+.leftList-item div {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.leftList-item:hover {
+  background-color: rgba(7, 109, 146, 0.164)
+}
+
+.leftList-item p.name,
+.leftList-item span.department {
+  margin: 0;
+  font-size: 0.9em;
+}
+
+.noMessages-text {
+  text-align: center;
+  font-weight: bold;
+}
+
+.profileEdit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background-color: #161B22;
+  color: white;
+}
+.profileEdit main form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 25px;
+  box-shadow: 1px 1px 15px 0.1px #000000;
+
+  border-radius: 10px;
+  padding: 57px;
+}
+
+.profileEdit button {
+  background-color: white;
+  width: 100%;
+  border: 0;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.profileEdit p {
+  display: flex;
+  width: 100%;
+  align-items: center;
+}
+
+.profileEdit a {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: white;
+}
+
+.profileEdit i {
+  font-size: 1.5em;
+  margin-right: 5px;
+}
+
+/* .left-options {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 0px;
+  background-color: #161B22;
+  border-right: 1px solid rgb(34 34 34);
+}
+
+.left-options #changeTheme {
+  color: white;
+  text-align: center;
+  font-size: 0.8em;
+}
+.left-options .bi-palette-fill {
+  font-size: 2.5em;
+  display: block;
+  width: 100%;
+} */

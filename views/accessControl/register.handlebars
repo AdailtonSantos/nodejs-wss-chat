@@ -1,0 +1,53 @@
+
+<section class="main-login">
+    <section class="form-login">
+        <img src="./logo.png" alt="Logo" class="logo">
+        <h3>CADASTRO DE USUÁRIOS</h3>
+<form action="/userRegister" method="post" onsubmit="return validarFormulario(event)"
+            class="container flex text-align-center">
+
+            <label for="name" class="w-30 ">Nome e Sobrenome:</label>
+            <input type="text" name="name" class="input-register"><br>
+
+            <label for="username" class="w-30">Usuário:</label>
+            <input type="text" name="username" class="input-register"><br>
+
+            <label for="department" class="w-30">Departamento:</label>
+            <input type="text" name="department" class="input-register"><br>
+
+            <label for="pass" class="w-30">Senha:</label>
+            <input type="password" name="pass" class="input-register"><br>
+
+            <button type="submit" class="submit-register">Efetuar Cadastro</button><br>
+            Já possui uma conta?
+            <a href="/">Entrar</a>
+        </form>
+
+        <script>
+
+            function validarFormulario(event) {
+                var username = document.getElementsByName("username")[0].value;
+                var senha = document.getElementsByName("senha")[0].value;
+
+                if (username === "" || senha === "") {
+                    alert("Por favor, preencha todos os campos.");
+                    event.preventDefault();
+                    return false;
+                }
+                return true;
+            }
+            function mostrarSenha() {
+                const inputPass = document.getElementById("input-senha");
+                const btnShowPass = document.getElementById("btn-senha");
+                if (inputPass.type === 'password') {
+                    inputPass.setAttribute('type', 'text');
+                    btnShowPass.classList.replace('bi-eye-fill', 'bi-eye-slash-fill');
+                } else {
+                    inputPass.setAttribute('type', 'password');
+                    btnShowPass.classList.replace('bi-eye-slash-fill', 'bi-eye-fill');
+                }
+            }
+        </script>
+
+    </section>
+</section>

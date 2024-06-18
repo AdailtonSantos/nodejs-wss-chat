@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <section class="profileEdit">
+        <main>
+            <form action="/updateUser" method="POST" enctype="multipart/form-data">
+                <p><a href="/logged"><i class="bi bi-arrow-left"></i> Voltar</a></p>
+                {{#each profile}}
+                {{#if this.profilePicPath}}
+                <img src="./images/{{this.profilePicPath}}" width="150px" style="border-radius: 50%;">
+                {{else}}
+                <img src="nopic.png" width="150px">
+                {{/if}}
+                <label for="profilePicPath"><b>Atualizar foto de perfil</b></label>
+                <input type="file" name="profilePicPath" id="profilePicPath" accept="image/*" style="display: block;">
+                <div>
+                    <p><b>Nome:</b> &nbsp;{{this.name}}</p>
+                    <p><b>Departamento:</b> &nbsp;{{this.department}}</p>
+                    <input type="hidden" name="id" value="{{this.id}}">
+                </div>
+                {{/each}}
+                <button type="submit">Atualizar</button>
+            </form>
+        </main>
+    </section>
+</body>
+
+</html>

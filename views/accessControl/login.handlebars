@@ -1,0 +1,61 @@
+<head>
+        <script src="/socket.io/socket.io.js"></script>
+
+</head>
+<section class="main-login">
+    <section class="form-login">
+        <img src="./logo.png" alt="Logo" class="logo">
+        <h3>LOGIN</h3>
+        <form action="/login" method="post" onsubmit="return validarFormulario(event)"
+            class="container col-md-3 flex text-align-center">
+            {{#if erro}}
+            <div class="container" id="error-login">
+                <h5>{{erro}}</h5>
+            </div>
+            {{/if}}
+
+            <label for="username" class="w-30 label-login">Usuário:</label>
+            <input type="text" name="username" class="username input-login"><br>
+
+            <section class="campo-senha">
+                <label for="pass" class="w-30 label-login">Senha:</label>
+                <div class="div-senha">
+                    <input type="password" name="pass" class="input-senha input-login" id="input-senha">
+                    <i class="bi bi-eye-fill" id="btn-senha" onclick="mostrarSenha()"></i>
+                </div>
+            </section>
+
+            <button type="submit" class="submit-login">Entrar</button><br>
+            <button class="btnEsqueciSenha"><a href="/resetar-senha"> Esqueci minha senha </a></button>
+
+        </form>
+
+        <script>
+                    const socket = io();
+
+            function validarFormulario(event) {
+                var username = document.getElementsByName("username")[0].value;
+                var senha = document.getElementsByName("senha")[0].value;
+
+                if (username === "" || senha === "") {
+                    alert("Por favor, preencha todos os campos.");
+                    event.preventDefault();
+                    return false;
+                }
+                return true;
+            }
+            function mostrarSenha() {
+                const inputPass = document.getElementById("input-senha");
+                const btnShowPass = document.getElementById("btn-senha");
+                if (inputPass.type === 'password') {
+                    inputPass.setAttribute('type', 'text');
+                    btnShowPass.classList.replace('bi-eye-fill', 'bi-eye-slash-fill');
+                } else {
+                    inputPass.setAttribute('type', 'password');
+                    btnShowPass.classList.replace('bi-eye-slash-fill', 'bi-eye-fill');
+                }
+            }
+        </script>
+
+    </section>
+</section>

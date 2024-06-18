@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="./src/js/audioRecorder.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+</head>
+
+<body>
+    <section id="generalLayout">
+                <i class="bi bi-indent" id="openLeftContainer"></i>
+        <section class="leftContainer" id="leftContainer">
+            <div class="contactListHeader">
+                <i class="bi bi-unindent" id="closeLeftContainer"></i>
+                {{#if user.profilePicPath}}
+                <img src="./images/{{user.profilePicPath}}" alt="" class="profilePic">
+                {{else}}
+                <img src="./nopic.png" alt="" class="profilePic">
+                {{/if}}
+                <hr>
+                <p><b>{{user.name}}</b></p>
+                <div id="optionsProfile">
+                    <a href="/profile">Perfil</a>
+                    <a href="/logout">Sair</a>
+                </div>
+                <i class="bi bi-three-dots-vertical" id="openOptionsProfile"></i>
+            </div>
+            <hr>
+            <p style="margin: 15px 0 0 15px; text-align: center;"> Usuários / Grupos </p>
+            <div class="leftList" id="leftList">
+                <div class="leftList-item" onclick="selectGroup('Chat-Geral')" id="Chat-Geral">
+                    <img src="./group.png" alt="" class="profilePic">
+                    <div>
+                        <p>Chat Geral</p>
+                    </div>
+                </div>
+                {{#each listUsers}}
+                <div class="leftList-item"
+                    onclick="selectAgent('{{this.name}}', '{{this.department}}', '{{this.profilePicPath}}')"
+                    id="{{this.name}}">
+                    {{#if this.profilePicPath}}
+                    <img src="./images/{{this.profilePicPath}}" alt="" class="profilePic">
+                    {{else}}
+                    <img src="./nopic.png" alt="" class="profilePic">
+                    {{/if}}
+                    <div>
+                        <p class="name">{{this.name}}</p>
+                        <span class="department">{{this.department}}</span>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+        </section>
+        <section id="viewMessages">
+            <header>
+                <img src="" alt="profile pic" class="profilePic" id="contactPic">
+                <div>
+                    <p><b id="contactName"></b></p>
+                    <p id="contactDepartment"></p>
+                </div>
+                <i class="bi bi-x-lg" id="closeConversation"></i>
+            </header>
+            <div id="messages">
+            </div>
+            <div id="sendMessageForm">
+                <span><i class="bi bi-plus actionTextRecord" id="moreOptions"></i></span>
+                <form action="/saveAttachment" method="POST" class="more-options-menu" id="saveAttachmentForm"
+                    enctype="multipart/form-data">
+                    <input type="hidden" name="agentRoom" class="agentRoom" value="">
+                    <label for="image-input" class="custom-file-input">
+                        <span class="file-icon"><i class="bi bi-image"></i> Imagem</span>
+                    </label>
+                    <input type="file" name="image" id="image-input" class="attachment-input" accept="image/*">
+                    <hr>
+                    <label for="video-input" class="custom-file-input">
+                        <span class="file-icon"><i class="bi bi-film"></i> Video</span>
+                    </label>
+                    <input type="file" name="video" id="video-input" class="attachment-input" accept="video/*">
+                    <hr>
+                    <label for="doc-input" class="custom-file-input">
+                        <span class="file-icon"><i class="bi bi-file-earmark-text"></i> Documento</span>
+                    </label>
+                    <input type="file" name="doc" id="doc-input" class="attachment-input"
+                        accept=".doc, .docx, .pdf, .txt">
+                    <button type="submit" style="display: none;" id="sendAttachmentButton">Enviar</button>
+                </form>
+                <form action="/saveMessage" method="post" name="saveMessageForm" id="saveMessageForm">
+                    <input type="hidden" name="agentRoom" class="agentRoom" value="">
+                    <input type="text" name="message" id="inputText" class="actionTextRecord">
+                    <span id="startRecording" onclick="audioRecorder.start()" class="actionTextRecord"><i
+                            class="bi bi-mic-fill"></i></span>
+                    <button type="submit" id="sendButton" class="actionTextRecord"><i class="bi bi-send"></i></button>
+
+                    <span id="cancelRecording" onclick="audioRecorder.cancel()" class="actionAudioRecord"
+                        style="display: none;"><i class="bi bi-trash3-fill"></i></span>
+                    <p id="timer"></p>
+                    <span id="pauseRecording" onclick="audioRecorder.pause()" class="actionAudioRecord"
+                        style="display: none;"><i class="bi bi-pause-circle-fill"></i></span>
+                    <span id="sendRecording" onclick="audioRecorder.stop(agentRoom[0].value)" class="actionAudioRecord"
+                        style="display: none;"><i class="bi bi-send"></i></span>
+                </form>
+            </div>
+
+        </section>
+    </section>
+
+    <script>
+        const socket = io()
+        function getElementsById(element) {
+            element = document.getElementById(element)
+        }
+
+        const arrayElements = ['messages', 'contactName', 'contactDepartment', 'saveMessageForm', 'sendMessageForm', 'saveAttachmentForm', 'sendAttachmentButton', 'moreOptions', 'inputText', 'optionsProfile', 'openOptionsProfile', 'closeConversation', 'contactPic', 'Chat-Geral', 'changeTheme', 'viewMessages', 'closeLeftContainer', 'openLeftContainer', 'leftContainer']
+        arrayElements.map((element) => getElementsById(element))
+
+        const header = document.getElementsByTagName('header')[0]
+        const agentRoom = document.querySelectorAll('.agentRoom')
+        const fileInputs = document.querySelectorAll('.attachment-input')
+
+        Array.from(fileInputs).map((input) => {
+            input.addEventListener('change', () => {
+                saveAttachmentForm.style.display = 'flex'
+                sendAttachmentButton.style.display = 'block'
+            })
+        })
+
+        saveMessageForm.onsubmit = (event) => {
+            event.preventDefault()
+
+            fetch('/saveMessage', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    agentRoom: saveMessageForm.agentRoom.value,
+                    message: saveMessageForm.message.value
+                }),
+            })
+                .then(response => response.json())
+                .catch(error => {
+                    console.error('Erro ao enviar a requisição POST:', error);
+                });
+            inputText.value = ''
+        }
+
+        saveAttachmentForm.onsubmit = async (e) => {
+            e.preventDefault();
+            sendAttachmentButton.style.display = 'none'
+
+            const formData = new FormData(saveAttachmentForm);
+
+            try {
+                const response = await fetch(saveAttachmentForm.action, {
+                    method: saveAttachmentForm.method,
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erro na requisição: ${response.status}`);
+                }
+
+                saveAttachmentForm.reset();
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        function renderTextMessages(message) {
+            if (message.sentBy != '{{user.name}}') {
+                messages.innerHTML += `
+                            <div class='mensagemCliente-texto'>
+                                ${message.groupName ? `<p class='sentBy'><b>${message.sentBy}</b></p>` : ''}
+                                <p class='mensagem'>${message.message}</p>
+                                <p class='enviadoAs'>${dayjs(message.createdAt).format('HH:mm')}</p>
+                            </div>
+    `
+            }
+            if (message.sentBy === '{{user.name}}') {
+                messages.innerHTML += `
+                <div class='mensagemUsuario-texto'>
+                    <section class="contentMensagem">
+                        <p class='mensagem'>${message.message}</p>
+                        <p class='enviadoAs'>${dayjs(message.createdAt).format('HH:mm')}<i class="bi bi-check2-all"></i></p>
+                    </section>
+                </div>
+                `
+            }
+        }
+
+        function renderAudioMessages(message) {
+            if (message.sentBy != '{{user.name}}') {
+                messages.innerHTML += `
+                            <div class='mensagemCliente-texto'>
+                                ${message.groupName ? `<p class='sentBy'><b>${message.sentBy}</b></p>` : ''}
+                                <audio controls>
+                                    <source src="./audios/${message.path}" type="audio/ogg">
+                                </audio>
+                                <p class='enviadoAs'>${dayjs(message.createdAt).format('HH:mm')}</p>
+                            </div>
+    `
+            }
+            if (message.sentBy === '{{user.name}}') {
+                messages.innerHTML += `
+                <div class='mensagemUsuario-texto'>
+                    <section class="contentMensagem">
+                        <audio controls>
+                            <source src="./audios/${message.path}" type="audio/ogg">
+                        </audio>
+                        <p class='enviadoAs'>${dayjs(message.createdAt).format('HH:mm')}<i class="bi bi-check2-all"></i></p>
+                    </section>
+                </div>
+                `
+            }
+        }
+
+        function renderImageMessages(message) {
+            if (message.sentBy != '{{user.name}}') {
+                messages.innerHTML += `
+                            <div class='mensagemCliente-texto'>
+                                ${message.groupName ? `<p class='sentBy'><b>${message.sentBy}</b></p>` : ''}
+                                <img src="./images/${message.path}" alt="received image" class="chatImages">
+                                <p class='enviadoAs'>${dayjs(message.createdAt).format('HH:mm')}</p>
+                            </div>
+    `
+            }
+            if (message.sentBy === '{{user.name}}') {
+                messages.innerHTML += `
+                <div class='mensagemUsuario-texto'>
+                    <section class="contentMensagem">
+                        <img src="./images/${message.path}" alt="received image" class="chatImages">
+                        <p class='enviadoAs'>${dayjs(message.createdAt).format('HH:mm')}<i class="bi bi-check2-all"></i></p>
+                    </section>
+                </div>
+                `
+            }
+        }
+
+        function renderVideoMessages(message) {
+            if (message.sentBy != '{{user.name}}') {
+                messages.innerHTML += `
+                            <div class='mensagemCliente-texto'>
+                            ${message.groupName ? `<p class='sentBy'><b>${message.sentBy}</b></p>` : ''}
+                            <figure>
+                                <video width="320" height="240" controls>
+                                    <source src="./videos/${message.path}" type="video/mp4">
+                                </video>
+                            </figure>  
+                            <p class='enviadoAs'>${dayjs(message.createdAt).format('HH:mm')}</p>
+                            </div>
+    `
+            }
+            if (message.sentBy === '{{user.name}}') {
+                messages.innerHTML += `
+                <div class='mensagemUsuario-texto'>
+                    <section class="contentMensagem">
+                        <figure>
+                            <video width="320" height="240" controls>
+                                <source src="./videos/${message.path}" type="video/mp4">
+                            </video>
+                        </figure>
+                        <p class='enviadoAs'>${dayjs(message.createdAt).format('HH:mm')}<i class="bi bi-check2-all"></i></p>
+                    </section>
+                </div>
+                `
+            }
+        }
+
+        function renderDocMessages(message) {
+            if (message.sentBy != '{{user.name}}') {
+                messages.innerHTML += `
+                            <div class='mensagemCliente-texto'>
+                            ${message.groupName ? `<p class='sentBy'><b>${message.sentBy}</b></p>` : ''}
+                            <span class="file">
+                            <p style="color:black;">${message.originalName}</p>
+                                <a href="./arquivos/${message.path}" download="${message.originalName}">
+                                    <i class="bi bi-file-earmark-arrow-down-fill"></i>
+                                </a>
+                            </span>
+                            <div class="fileType">
+                                <p>Tipo: ${message.originalName.split('.').slice(-1)}</p>
+                                <i class="bi bi-file-earmark-arrow-down-fill"></i>
+                            </div>
+                            <p class='enviadoAs'>${dayjs(message.createdAt).format('HH:mm')}</p>
+                            </div>
+    `
+            }
+            if (message.sentBy === '{{user.name}}') {
+                messages.innerHTML += `
+                <div class='mensagemUsuario-texto'>
+                    <section class="contentMensagem">
+                        <span class="file">
+                            <p style="color:black;">${message.originalName}</p>
+                            <a href="./arquivos/${message.path}" download="${message.originalName}">
+                                <i class="bi bi-file-earmark-arrow-down-fill"></i>
+                            </a>
+                        </span>
+                        <div class="fileType">
+                            <p>Tipo: ${message.originalName.split('.').slice(-1)}</p>
+                        </div>
+                        <p class='enviadoAs'>${dayjs(message.createdAt).format('HH:mm')}<i class="bi bi-check2-all"></i></p>
+                    </section>
+                </div>
+                `
+            }
+        }
+
+        socket.on('message', (message) => {
+            if (message.toUser) {
+                if ((agentRoom[0].value === "" || agentRoom[0].value === undefined || agentRoom[0].value != message.sentBy + '-individual') && message.toUser === '{{user.name}}') {
+                    if (!document.getElementById(message.sentBy)?.querySelector("span.notificationIcon")) {
+                        const notificationSign = document.createElement('span')
+                        notificationSign.classList.add('notificationIcon')
+                        notificationSign.id = 'notificationIcon'
+                        document.getElementById(message.sentBy).appendChild(notificationSign)
+                        playSound('notification.mp3')
+                        return
+                    }
+                } else {
+                    switch (message.content_type) {
+                        case ('text'):
+                            renderTextMessages(message)
+                            break;
+                        case ('audio'):
+                            renderAudioMessages(message)
+                            break;
+                        case ('image'):
+                            renderImageMessages(message)
+                            break;
+                        case ('video'):
+                            renderVideoMessages(message)
+                            break;
+                        case ('doc'):
+                            renderDocMessages(message)
+                            break;
+                    }
+                }
+                messages.scrollBy(0, messages.scrollHeight)
+            }
+            if (message.groupName) {
+                if (agentRoom[0].value === message.groupName + '-group') {
+                    switch (message.content_type) {
+                        case ('text'):
+                            renderTextMessages(message)
+                            break;
+                        case ('audio'):
+                            renderAudioMessages(message)
+                            break;
+                        case ('image'):
+                            renderImageMessages(message)
+                            break;
+                        case ('video'):
+                            renderVideoMessages(message)
+                            break;
+                        case ('doc'):
+                            renderDocMessages(message)
+                            break;
+                    }
+                } else {
+                    if (!document.getElementById(message.groupName)?.querySelector("span.notificationIcon")) {
+                        const notificationSign = document.createElement('span')
+                        notificationSign.classList.add('notificationIcon')
+                        notificationSign.id = 'notificationIcon'
+                        document.getElementById(message.groupName).appendChild(notificationSign)
+                        playSound('notification.mp3')
+                        return
+                    }
+                }
+                messages.scrollBy(0, messages.scrollHeight)
+
+            }
+
+        })
+
+        function selectAgent(recipient, department, profilePicPath) {
+            if (agentRoom[0].value === recipient) {
+                return
+            }
+            messages.innerHTML = ''
+            if (!!document.getElementById(recipient)?.querySelector(".notificationIcon")) {
+                const notificationIcon = document.getElementById('notificationIcon')
+                document.getElementById(recipient).removeChild(notificationIcon)
+            }
+
+            fetch(`/getIndividualMessages?sender=${encodeURIComponent('{{user.name}}')}&recipient=${recipient}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Erro de rede! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const msg = data
+                    msg.map((message) => {
+                        switch (message.content_type) {
+                            case ('text'):
+                                renderTextMessages(message)
+                                break;
+                            case ('audio'):
+                                renderAudioMessages(message)
+                                break;
+                            case ('image'):
+                                renderImageMessages(message)
+                                break;
+                            case ('video'):
+                                renderVideoMessages(message)
+                                break;
+                            case ('doc'):
+                                renderDocMessages(message)
+                                break;
+                        }
+                    })
+
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                });
+
+            Array.from(agentRoom).map((input) => {
+                input.value = recipient + '-individual'
+            })
+
+            contactName.innerHTML = recipient
+            contactDepartment.innerHTML = department
+            contactPic.src = `${profilePicPath ? `./images/${profilePicPath}` : './nopic.png'}`
+            header.style.display = 'flex'
+            saveMessageForm.style.display = 'flex'
+            sendMessageForm.style.display = 'flex'
+            setTimeout(() => {
+                messages.scrollBy(0, messages.scrollHeight)
+            }, 100)
+        }
+
+        function selectGroup(group) {
+            if (agentRoom[0].value === group) {
+                return
+            }
+            messages.innerHTML = ''
+            if (!!document.getElementById(group)?.querySelector(".notificationIcon")) {
+                const notificationIcon = document.getElementById('notificationIcon')
+                document.getElementById(group).removeChild(notificationIcon)
+            }
+
+            fetch(`/getGroupMessages?group=${encodeURIComponent(group)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Erro de rede! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const msg = data
+                    msg.map((message) => {
+                        switch (message.content_type) {
+                            case ('text'):
+                                renderTextMessages(message)
+                                break;
+                            case ('audio'):
+                                renderAudioMessages(message)
+                                break;
+                            case ('image'):
+                                renderImageMessages(message)
+                                break;
+                            case ('video'):
+                                renderVideoMessages(message)
+                                break;
+                            case ('doc'):
+                                renderDocMessages(message)
+                                break;
+                        }
+                    })
+
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                });
+
+            Array.from(agentRoom).map((input) => {
+                input.value = group + '-group'
+            })
+
+            contactName.innerHTML = group
+            contactPic.src = './group.png'
+            header.style.display = 'flex'
+            saveMessageForm.style.display = 'flex'
+            sendMessageForm.style.display = 'flex'
+            setTimeout(() => {
+                messages.scrollBy(0, messages.scrollHeight)
+            }, 100)
+        }
+
+        moreOptions.addEventListener('click', () => {
+            document.querySelector('.more-options-menu').style.display = 'flex'
+        })
+
+        setTimeout(() => {
+            document.addEventListener('click', (e) => {
+                document.querySelector('.more-options-menu').style.display = 'none'
+                optionsProfile.style.display = 'none'
+
+            }, 2000)
+        })
+
+        document.addEventListener('keydown', event => {
+            event.stopPropagation()
+            if (event.key === 'Escape') {
+                messages.innerHTML = ''
+                header.style.display = 'none'
+                saveMessageForm.style.display = 'none'
+                sendMessageForm.style.display = 'none'
+
+                Array.from(agentRoom).map((input) => {
+                    input.value = ''
+                })
+            }
+        })
+
+        closeConversation.addEventListener('click', (e) => {
+            e.stopPropagation()
+            messages.innerHTML = ''
+            header.style.display = 'none'
+            saveMessageForm.style.display = 'none'
+            sendMessageForm.style.display = 'none'
+
+            Array.from(agentRoom).map((input) => {
+                input.value = ''
+            })
+        })
+
+        openOptionsProfile.addEventListener('click', (e) => {
+            e.stopPropagation()
+            optionsProfile.style.display = 'flex'
+
+        })
+
+        function playSound(url) {
+            const audio = new Audio(url);
+            audio.play();
+        }
+
+        closeLeftContainer.addEventListener('click', (e) => {
+            e.stopPropagation()
+            setTimeout(() => {
+                openLeftContainer.style.display = 'block'  
+            }, 200)
+            leftContainer.style.width = '0'
+        })
+
+        openLeftContainer.addEventListener('click', (e) => {
+            e.stopPropagation()
+            
+            leftContainer.style.width = '36.25rem'
+            openLeftContainer.style.display = 'none'  
+        })
+
+    </script>
+</body>
+
+</html>
